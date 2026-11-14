@@ -1,7 +1,7 @@
 // גרסת מטמון: כשמעלים את המספר, הדף, הנתונים והאייקונים נטענים מחדש
-const CACHE = 'rabatzar-v9';
+const CACHE = 'rabatzar-v10';
 const PAGES = 'rabatzar-pages-v1';   // עמודי המקור של ההוראות נשמרים בנפרד, כשפותחים אותם
-const ASSETS = ['./', './index.html', './manifest.webmanifest?v=9', './instructions.json', './icon-192.png?v=9', './icon-512.png?v=9', './maskable-192.png?v=9', './maskable-512.png?v=9', './apple-touch-icon.png?v=9', './favicon-32.png?v=9', './favicon-64.png?v=9'];
+const ASSETS = ['./', './index.html', './manifest.webmanifest?v=10', './instructions.json', './icon-192.png?v=10', './icon-512.png?v=10', './maskable-192.png?v=10', './maskable-512.png?v=10', './apple-touch-icon.png?v=10', './favicon-32.png?v=10', './favicon-64.png?v=10'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => Promise.all(ASSETS.map((u) => c.add(u).catch(() => null)))).then(() => self.skipWaiting()));
 });
