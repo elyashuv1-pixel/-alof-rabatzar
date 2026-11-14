@@ -1,9 +1,9 @@
 // גרסת מטמון: כשמעלים את המספר, הדף, הנתונים והאייקונים נטענים מחדש
-const CACHE = 'rabatzar-v11';
+const CACHE = 'rabatzar-v13';
 const PAGES = 'rabatzar-pages-v1';   // עמודי המקור של ההוראות נשמרים בנפרד, כשפותחים אותם
-const ASSETS = ['./', './index.html', './manifest.webmanifest?v=11', './instructions.json', './icon-192.png?v=11', './icon-512.png?v=11', './maskable-192.png?v=11', './maskable-512.png?v=11', './apple-touch-icon.png?v=11', './favicon-32.png?v=11', './favicon-64.png?v=11'];
+const ASSETS = ['./', './index.html', './manifest.webmanifest?v=13', './instructions.json', './icon-192.png?v=13', './icon-512.png?v=13', './maskable-192.png?v=13', './maskable-512.png?v=13', './apple-touch-icon.png?v=13', './favicon-32.png?v=13', './favicon-64.png?v=13'];
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => Promise.all(ASSETS.map((u) => c.add(u).catch(() => null)))).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then((c) => Promise.all(ASSETS.map((u) => c.add(new Request(u, { cache: 'reload' })).catch(() => null)))).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', (e) => {
   e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE && k !== PAGES).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
@@ -13,12 +13,12 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
   const url = new URL(req.url);
   if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).then((r) => { const cp = r.clone(); caches.open(CACHE).then((c) => c.put('./index.html', cp)); return r; }).catch(() => caches.match('./index.html')));
+    e.respondWith(fetch(req, { cache: 'no-cache' }).then((r) => { const cp = r.clone(); caches.open(CACHE).then((c) => c.put('./index.html', cp)); return r; }).catch(() => caches.match('./index.html')));
     return;
   }
   if (url.pathname.endsWith('/instructions.json')) {
     // נתוני ההוראות: קודם מהרשת (לעדכונים), ובלי רשת מהמטמון
-    e.respondWith(fetch(req).then((r) => { const cp = r.clone(); caches.open(CACHE).then((c) => c.put(req, cp)); return r; }).catch(() => caches.match(req)));
+    e.respondWith(fetch(req.url, { cache: 'no-cache' }).then((r) => { const cp = r.clone(); caches.open(CACHE).then((c) => c.put(req, cp)); return r; }).catch(() => caches.match(req, { ignoreSearch: true })));
     return;
   }
   if (/\/p\d{3}\.webp$/.test(url.pathname)) {
