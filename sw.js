@@ -1,7 +1,7 @@
 // גרסת מטמון: כשמעלים את המספר, הדף, הנתונים והאייקונים נטענים מחדש
-const CACHE = 'rabatzar-v8';
+const CACHE = 'rabatzar-v9';
 const PAGES = 'rabatzar-pages-v1';   // עמודי המקור של ההוראות נשמרים בנפרד, כשפותחים אותם
-const ASSETS = ['./', './index.html', './manifest.webmanifest?v=8', './lib/instructions.json', './icon-192.png?v=8', './icon-512.png?v=8', './maskable-192.png?v=8', './maskable-512.png?v=8', './apple-touch-icon.png?v=8', './favicon-32.png?v=8', './favicon-64.png?v=8'];
+const ASSETS = ['./', './index.html', './manifest.webmanifest?v=9', './instructions.json', './icon-192.png?v=9', './icon-512.png?v=9', './maskable-192.png?v=9', './maskable-512.png?v=9', './apple-touch-icon.png?v=9', './favicon-32.png?v=9', './favicon-64.png?v=9'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => Promise.all(ASSETS.map((u) => c.add(u).catch(() => null)))).then(() => self.skipWaiting()));
 });
@@ -16,12 +16,12 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(fetch(req).then((r) => { const cp = r.clone(); caches.open(CACHE).then((c) => c.put('./index.html', cp)); return r; }).catch(() => caches.match('./index.html')));
     return;
   }
-  if (url.pathname.endsWith('/lib/instructions.json')) {
+  if (url.pathname.endsWith('/instructions.json')) {
     // נתוני ההוראות: קודם מהרשת (לעדכונים), ובלי רשת מהמטמון
     e.respondWith(fetch(req).then((r) => { const cp = r.clone(); caches.open(CACHE).then((c) => c.put(req, cp)); return r; }).catch(() => caches.match(req)));
     return;
   }
-  if (url.pathname.includes('/lib/pages/')) {
+  if (/\/p\d{3}\.webp$/.test(url.pathname)) {
     e.respondWith(caches.open(PAGES).then((c) => c.match(req).then((m) => m || fetch(req).then((r) => { if (r.ok) c.put(req, r.clone()); return r; }))));
     return;
   }
